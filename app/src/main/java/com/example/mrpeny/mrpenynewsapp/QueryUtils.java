@@ -1,5 +1,11 @@
 package com.example.mrpeny.mrpenynewsapp;
 
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,18 +13,26 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by MrPeny on 2017. 06. 12..
  */
 
 public class QueryUtils {
-
-    public static String fetchNewsData(String query) {
+    private static final String LOG_TAG = QueryUtils.class.getSimpleName();
+    /**
+     * Fetches HTTP response from the given URL
+     *
+     * @param queryUrl the URL used for sending request to the server
+     * @return response received from the server
+     */
+    public static String fetchNewsData(String queryUrl) {
         String response = null;
 
         try {
-            URL url = new URL(query);
+            URL url = new URL(queryUrl);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestMethod("GET");
             if (httpURLConnection.getResponseCode() == 200) {
@@ -27,10 +41,35 @@ public class QueryUtils {
                 response = convertStreamToString(inputStream);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(LOG_TAG, "Error creating URL: " + e.getMessage());
         }
 
         return response;
+    }
+
+    public static List<NewsData> parseNews(String newsJson) {
+        List<NewsData> newsDataList = new ArrayList<>();
+
+        try {
+            JSONObject rootJson = new JSONObject(newsJson);
+            JSONObject response = rootJson.getJSONObject("response");
+            JSONArray results = response.getJSONArray("results");
+
+            for (int i = 0; i < results.length(); i++) {
+                JSONObject newsData = results.getJSONObject(i);
+                String sectionName = newsData.getString("sectionName");
+                String webPublicationDate = newsData.getString("webPublicationDate");
+                String webTitle = newsData.getString("webTitle");
+                String webUrl = newsData.getString("webUrl");
+
+                newsDataList.add(new NewsData(sectionName, webPublicationDate, webTitle, webUrl));
+            }
+
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "Error parsing JSON: " + e.getMessage());
+        }
+
+        return newsDataList;
     }
 
     private static String convertStreamToString(InputStream inputStream) {

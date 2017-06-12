@@ -1,6 +1,9 @@
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">News App - Guardian</string>
 
     <!-- Error messages -->
     <string name="internet_connection_error">No internet. Please check your connection!</string>
+    <string name="no_news_error">
+        No news found for keywords: <xliff:g example="ssfghgsf" id="keywords">%s</xliff:g>
+    </string>
 </resources>

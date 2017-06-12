@@ -3,13 +3,15 @@ package com.example.mrpeny.mrpenynewsapp;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 
-import static com.example.mrpeny.mrpenynewsapp.QueryUtils.fetchNewsData;
+import java.util.List;
+
+import static com.example.mrpeny.mrpenynewsapp.QueryUtils.parseNews;
 
 /**
  * Created by MrPeny on 2017. 06. 12..
  */
 
-public class NewsLoader extends AsyncTaskLoader<String> {
+public class NewsLoader extends AsyncTaskLoader<List<NewsData>> {
     private String query;
 
     public NewsLoader(Context context, String query) {
@@ -23,8 +25,9 @@ public class NewsLoader extends AsyncTaskLoader<String> {
     }
 
     @Override
-    public String loadInBackground() {
+    public List<NewsData> loadInBackground() {
         String response = QueryUtils.fetchNewsData(query);
-        return response;
+        List<NewsData> newsDataList = QueryUtils.parseNews(response);
+        return newsDataList;
     }
 }
