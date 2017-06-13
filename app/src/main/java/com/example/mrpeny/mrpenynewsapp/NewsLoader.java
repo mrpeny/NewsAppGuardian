@@ -5,10 +5,9 @@ import android.content.Context;
 
 import java.util.List;
 
-import static com.example.mrpeny.mrpenynewsapp.QueryUtils.parseNews;
-
 /**
- * Created by MrPeny on 2017. 06. 12..
+ * A custom loader that queries the given URL from Guardian API in background and returns a list
+ * of NewsDate as a result.
  */
 
 public class NewsLoader extends AsyncTaskLoader<List<NewsData>> {

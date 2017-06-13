@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by MrPeny on 2017. 06. 12..
+ * Collection of static methods that help to retrieve and parse date from Guardian web servers.
  */
 
 public class QueryUtils {
@@ -47,6 +47,12 @@ public class QueryUtils {
         return response;
     }
 
+    /**
+     * Parses the given JSON string into a List of NewsData objects
+     *
+     * @param newsJson the JSON string to parse
+     * @return a list of NewsData objects
+     */
     public static List<NewsData> parseNews(String newsJson) {
         List<NewsData> newsDataList = new ArrayList<>();
 
@@ -72,6 +78,7 @@ public class QueryUtils {
         return newsDataList;
     }
 
+    // converts an inputStream to String object with the help of BufferedReader and StringBuilder
     private static String convertStreamToString(InputStream inputStream) {
         if (inputStream != null) {
             StringBuilder stringBuilder = new StringBuilder();

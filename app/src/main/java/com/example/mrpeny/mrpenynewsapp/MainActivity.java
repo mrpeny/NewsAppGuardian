@@ -1,24 +1,29 @@
 package com.example.mrpeny.mrpenynewsapp;
 
 import android.app.LoaderManager;
-import android.content.AsyncTaskLoader;
+import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.v7.app.AppCompatActivity;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<NewsData>> {
-    public static final String URL = "http://content.guardianapis.com/search?order-by=relevance&show-fields=trailText%2Cheadline&q=hungary&api-key=test";
+    public static final String URL = "http://content.guardianapis.com/search"; //?order-by=relevance&show-fields=trailText%2Cheadline&q=hungary&api-key=test
     private static final int NEWSLOADER_ID = 0;
 
     private List<NewsData> newsDataList = new ArrayList<>();
@@ -61,8 +66,43 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public Loader<List<NewsData>> onCreateLoader(int id, Bundle args) {
-        return new NewsLoader(this, URL);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String orderByValue = sharedPreferences.getString(
+                getString(R.string.settings_order_by_key),
+                getString(R.string.settings_order_by_default));
+
+        String pageSize = sharedPreferences.getString(
+                getString(R.string.settings_page_size_key),
+                getString(R.string.settings_page_size_default));
+
+        Uri baseUri = Uri.parse(URL);
+        Uri.Builder uriBuilder = baseUri.buildUpon();
+
+        uriBuilder.appendQueryParameter(getString(R.string.settings_order_by_key), orderByValue);
+        uriBuilder.appendQueryParameter("q", "hungary");
+        uriBuilder.appendQueryParameter(getString(R.string.settings_page_size_key), pageSize);
+        uriBuilder.appendQueryParameter("api-key", "a6ba290e-d70e-44da-93bb-3a04f7dcb7e9");
+        //Log.d("MainActivity", uriBuilder.toString());
+        return new NewsLoader(this, uriBuilder.toString());
     }
 
     @Override

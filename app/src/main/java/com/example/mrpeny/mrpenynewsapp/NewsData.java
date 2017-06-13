@@ -1,5 +1,10 @@
 package com.example.mrpeny.mrpenynewsapp;
 
+import android.util.Log;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by MrPeny on 2017. 06. 12..
  */
