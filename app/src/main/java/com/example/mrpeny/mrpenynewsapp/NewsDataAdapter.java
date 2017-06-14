@@ -91,6 +91,15 @@ class NewsDataAdapter extends RecyclerView.Adapter<NewsDataAdapter.ViewHolder> {
         this.newsDataList = newsDataList;
     }
 
+    void clear() {
+        int size = this.newsDataList.size();
+        if (size > 0) {
+            newsDataList.clear();
+
+            this.notifyItemRangeRemoved(0, size);
+        }
+    }
+
     class ViewHolder extends RecyclerView.ViewHolder {
         TextView sectionNameTextView;
         TextView webPublicationDateTextView;

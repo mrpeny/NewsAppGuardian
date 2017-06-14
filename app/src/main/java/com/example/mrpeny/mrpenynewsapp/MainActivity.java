@@ -1,6 +1,8 @@
 package com.example.mrpeny.mrpenynewsapp;
 
 import android.app.LoaderManager;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
@@ -14,7 +16,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -26,8 +31,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     // base search URL of Guardian API
     public static final String URL = "http://content.guardianapis.com/search";
     private static final int NEWS_LOADER_ID = 0;
-    // my chosen topic stated in the project rubric
-    private static String myTopic = "Hungary";
+    // variable for holding default and user's query String
+    private static String query = "";
+    SearchView searchView;
     private List<NewsData> newsDataList = new ArrayList<>();
     private RecyclerView newsRecyclerView;
     private NewsDataAdapter newsDataAdapter;
@@ -53,12 +59,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        ConnectivityManager connectivityManager =
-                (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        startGuardianSearch();
+    }
 
-        // Checking the presence of the Internet connection and handling cases
-        if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
+    private void startGuardianSearch() {
+        if (hasConnection()) {
             LoaderManager loaderManager = getLoaderManager();
             // Starting Loader thread for network and parsing
             loaderManager.initLoader(NEWS_LOADER_ID, null, this);
@@ -68,9 +73,28 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
+    // Checks whether device has available internet connection
+    private boolean hasConnection() {
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
+        // Checking the presence of the Internet connection and handling cases
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu, menu);
+
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false);
+
         return true;
     }
 
@@ -112,9 +136,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         // encode the search topic to ensure spaces and special chares don't cause problems
         // in the query
-        myTopic = Uri.encode(myTopic);
-        uriBuilder.appendQueryParameter("q", myTopic);
-
+        query = Uri.encode(query);
+        uriBuilder.appendQueryParameter("q", query);
+        // appending api-key to the query
         uriBuilder.appendQueryParameter("api-key", "a6ba290e-d70e-44da-93bb-3a04f7dcb7e9");
 
         return new NewsLoader(this, uriBuilder.toString());
@@ -124,15 +148,20 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoadFinished(Loader<List<NewsData>> loader, List<NewsData> updatedNewsList) {
         progressBar.setVisibility(View.GONE);
         swipeRefreshLayout.setRefreshing(false);
-        // releasing references to old data list
-        newsDataAdapter.setNewsDataList(null);
 
-        // If there is new data then update the list and notify adaptar about data change
+        // If there is new data then update the list and notify adapter about data change
         if (updatedNewsList != null && !updatedNewsList.isEmpty()) {
+            if (!TextUtils.isEmpty(emptyStateTextView.getText())) {
+                emptyStateTextView.setText("");
+            }
+            // releasing references to old data list
+            newsDataAdapter.setNewsDataList(null);
             newsDataAdapter.setNewsDataList(updatedNewsList);
             newsDataAdapter.notifyDataSetChanged();
+            newsRecyclerView.setVisibility(View.VISIBLE);
         } else {
-            emptyStateTextView.setText(getString(R.string.no_news_error));
+            newsRecyclerView.setVisibility(View.GONE);
+            emptyStateTextView.setText(getString(R.string.no_news_error, query));
         }
     }
 
@@ -149,7 +178,43 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     // logic for restarting the loader
-    private void restartLoader() {
-        getLoaderManager().restartLoader(NEWS_LOADER_ID, null, this);
+    public void restartLoader() {
+        if (hasConnection()) {
+            getLoaderManager().restartLoader(NEWS_LOADER_ID, null, this);
+        } else {
+            progressBar.setVisibility(View.GONE);
+            swipeRefreshLayout.setRefreshing(false);
+            newsDataAdapter.clear();
+            emptyStateTextView.setText(R.string.internet_connection_error);
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        handleIntent(getIntent());
+    }
+
+    private void handleIntent(Intent intent) {
+        // Handle search intent
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            progressBar.setVisibility(View.VISIBLE);
+            // retrieve user's query string
+            query = intent.getStringExtra(SearchManager.QUERY);
+            restartLoader();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // preventing soft keyboard showing up and search view getting focus when navigating
+        // back from other screens
+        if (searchView != null) {
+            searchView.clearFocus();
+        }
+
+        restartLoader();
     }
 }

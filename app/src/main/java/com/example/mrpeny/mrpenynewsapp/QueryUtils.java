@@ -1,5 +1,6 @@
 package com.example.mrpeny.mrpenynewsapp;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -55,6 +56,11 @@ class QueryUtils {
      * @return a list of NewsData objects
      */
     static List<NewsData> parseNews(String newsJson) {
+        // if the JSON String is empty or null, then return early
+        if (TextUtils.isEmpty(newsJson)) {
+            return null;
+        }
+
         List<NewsData> newsDataList = new ArrayList<>();
 
         try {
