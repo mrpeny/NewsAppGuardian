@@ -1,40 +1,35 @@
 package com.example.mrpeny.mrpenynewsapp;
 
-import android.util.Log;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 /**
- * Created by MrPeny on 2017. 06. 12..
+ * Class representing the News queried through Guardian search API
  */
 
-public class NewsData {
+class NewsData {
     private String sectionName;
     private String webPublicationDate;
     private String webTitle;
     private String webUrl;
 
-    public NewsData(String sectionName, String webPublicationDate, String webTitle, String webUrl) {
+    NewsData(String sectionName, String webPublicationDate, String webTitle, String webUrl) {
         this.sectionName = sectionName;
         this.webPublicationDate = webPublicationDate;
         this.webTitle = webTitle;
         this.webUrl = webUrl;
     }
 
-    public String getSectionName() {
+    String getSectionName() {
         return sectionName;
     }
 
-    public String getWebPublicationDate() {
+    String getWebPublicationDate() {
         return webPublicationDate;
     }
 
-    public String getWebTitle() {
+    String getWebTitle() {
         return webTitle;
     }
 
-    public String getWebUrl() {
+    String getWebUrl() {
         return webUrl;
     }
 }

@@ -23,6 +23,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     public static class NewsAppPreferenceFragment extends PreferenceFragment
             implements Preference.OnPreferenceChangeListener {
+
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);

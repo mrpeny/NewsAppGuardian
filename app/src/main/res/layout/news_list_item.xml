@@ -1,32 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <TextView
         android:id="@+id/section_name_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="@style/section_name_element_style"
         tools:text="World news"/>
 
     <TextView
         android:id="@+id/title_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="@style/title_element_style"
         tools:text="Democracy and academic freedom in Viktor Orbán’s Hungary | Letters from Michael Ignatieff and others"/>
 
     <TextView
         android:id="@+id/publication_date_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="@style/list_item_element_style"
         tools:text="2017.04.23 18:47"/>
-
-    <TextView
-        android:id="@+id/authors_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:text="Jennifer Rankin"/>
 
 </LinearLayout>

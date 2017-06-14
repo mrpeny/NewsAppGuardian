@@ -10,10 +10,10 @@ import java.util.List;
  * of NewsDate as a result.
  */
 
-public class NewsLoader extends AsyncTaskLoader<List<NewsData>> {
+class NewsLoader extends AsyncTaskLoader<List<NewsData>> {
     private String query;
 
-    public NewsLoader(Context context, String query) {
+    NewsLoader(Context context, String query) {
         super(context);
         this.query = query;
     }
@@ -27,6 +27,7 @@ public class NewsLoader extends AsyncTaskLoader<List<NewsData>> {
     public List<NewsData> loadInBackground() {
         String response = QueryUtils.fetchNewsData(query);
         List<NewsData> newsDataList = QueryUtils.parseNews(response);
+
         return newsDataList;
     }
 }

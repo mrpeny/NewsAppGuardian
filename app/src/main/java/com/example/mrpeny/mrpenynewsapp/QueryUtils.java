@@ -20,15 +20,16 @@ import java.util.List;
  * Collection of static methods that help to retrieve and parse date from Guardian web servers.
  */
 
-public class QueryUtils {
+class QueryUtils {
     private static final String LOG_TAG = QueryUtils.class.getSimpleName();
+
     /**
      * Fetches HTTP response from the given URL
      *
      * @param queryUrl the URL used for sending request to the server
      * @return response received from the server
      */
-    public static String fetchNewsData(String queryUrl) {
+    static String fetchNewsData(String queryUrl) {
         String response = null;
 
         try {
@@ -53,7 +54,7 @@ public class QueryUtils {
      * @param newsJson the JSON string to parse
      * @return a list of NewsData objects
      */
-    public static List<NewsData> parseNews(String newsJson) {
+    static List<NewsData> parseNews(String newsJson) {
         List<NewsData> newsDataList = new ArrayList<>();
 
         try {
@@ -78,7 +79,8 @@ public class QueryUtils {
         return newsDataList;
     }
 
-    // converts an inputStream to String object with the help of BufferedReader and StringBuilder
+    // helper method that converts an inputStream to String object with the help of BufferedReader
+    // and StringBuilder
     private static String convertStreamToString(InputStream inputStream) {
         if (inputStream != null) {
             StringBuilder stringBuilder = new StringBuilder();

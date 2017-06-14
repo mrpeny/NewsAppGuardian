@@ -10,38 +10,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 /**
- * Created by MrPeny on 2017. 06. 12..
+ * Adapter for binding News date to Recycler view item views
  */
 
-public class NewsDataAdapter extends RecyclerView.Adapter<NewsDataAdapter.ViewHolder> {
-    List<NewsData> newsDataList;
-    Context context;
+class NewsDataAdapter extends RecyclerView.Adapter<NewsDataAdapter.ViewHolder> {
+    private List<NewsData> newsDataList;
+    private Context context;
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView sectionNameTextView;
-        TextView webPublicationDateTextView;
-        TextView webTitleTextView;
-        TextView authorsTextView;
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-            this.sectionNameTextView = (TextView) itemView.findViewById(R.id.section_name_text_view);
-            this.webPublicationDateTextView = (TextView) itemView.findViewById(R.id.publication_date_text_view);
-            this.webTitleTextView = (TextView) itemView.findViewById(R.id.title_text_view);
-            this.authorsTextView = (TextView) itemView.findViewById(R.id.authors_text_view);
-        }
-    }
-
-    public NewsDataAdapter(Context context, List<NewsData> newsDataList) {
+    NewsDataAdapter(Context context, List<NewsData> newsDataList) {
         this.context = context;
         this.newsDataList = newsDataList;
     }
@@ -54,10 +37,11 @@ public class NewsDataAdapter extends RecyclerView.Adapter<NewsDataAdapter.ViewHo
         final NewsDataAdapter.ViewHolder newsDataViewHolder =
                 new NewsDataAdapter.ViewHolder(newsListItemView);
 
-        // setting onClickListener on the list itmes that open the corresponding article online
+        // setting onClickListener on the list items that opens the corresponding article online
         newsListItemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // getting the URL of the news at adapters current position
                 String webUrl = newsDataList.get(newsDataViewHolder.getAdapterPosition()).getWebUrl();
                 Uri webUri = Uri.parse(webUrl);
                 Intent intent = new Intent(Intent.ACTION_VIEW, webUri);
@@ -75,20 +59,26 @@ public class NewsDataAdapter extends RecyclerView.Adapter<NewsDataAdapter.ViewHo
         if (newsDataList == null) {
             return;
         }
+        // retrieve the current NewsData object
         NewsData newsData = newsDataList.get(position);
 
         viewHolder.sectionNameTextView.setText(newsData.getSectionName());
         viewHolder.webTitleTextView.setText(newsData.getWebTitle());
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+
+        // creating a simple date format that matches the pattern that Guardian API returns
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
+                Locale.getDefault());
         Date date = null;
         try {
+            // parse returned date string from Guardian API to a Date object
             date = simpleDateFormat.parse(newsData.getWebPublicationDate());
         } catch (ParseException e) {
             Log.e("NewsDataAdapter", e.getMessage());
         }
 
-        //SimpleDateFormat dateFormatterForPresentation = new SimpleDateFormat("yyyy.mm.dd. HH:mm");
+        // create a pattern that matches the way Hungarian users read date and time
         simpleDateFormat.applyLocalizedPattern("yyyy.MM.dd. HH:mm");
+        // populate the date into the corresponding TextView in the above formatted way
         viewHolder.webPublicationDateTextView.setText(simpleDateFormat.format(date));
     }
 
@@ -97,7 +87,20 @@ public class NewsDataAdapter extends RecyclerView.Adapter<NewsDataAdapter.ViewHo
         return newsDataList.size();
     }
 
-    public void setNewsDataList(List<NewsData> newsDataList) {
+    void setNewsDataList(List<NewsData> newsDataList) {
         this.newsDataList = newsDataList;
+    }
+
+    class ViewHolder extends RecyclerView.ViewHolder {
+        TextView sectionNameTextView;
+        TextView webPublicationDateTextView;
+        TextView webTitleTextView;
+
+        ViewHolder(View itemView) {
+            super(itemView);
+            this.sectionNameTextView = (TextView) itemView.findViewById(R.id.section_name_text_view);
+            this.webPublicationDateTextView = (TextView) itemView.findViewById(R.id.publication_date_text_view);
+            this.webTitleTextView = (TextView) itemView.findViewById(R.id.title_text_view);
+        }
     }
 }
