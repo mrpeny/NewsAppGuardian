@@ -27,16 +27,16 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<NewsData>>, SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<News>>, SwipeRefreshLayout.OnRefreshListener {
     // base search URL of Guardian API
     public static final String URL = "http://content.guardianapis.com/search";
     private static final int NEWS_LOADER_ID = 0;
     // variable for holding default and user's query String
     private static String query = "";
     SearchView searchView;
-    private List<NewsData> newsDataList = new ArrayList<>();
+    private List<News> newsList = new ArrayList<>();
     private RecyclerView newsRecyclerView;
-    private NewsDataAdapter newsDataAdapter;
+    private NewsAdapter newsAdapter;
     private TextView emptyStateTextView;
     private View progressBar;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -50,8 +50,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         newsRecyclerView = (RecyclerView) findViewById(R.id.news_recycler_view);
         LinearLayoutManager newsLayoutManager = new LinearLayoutManager(this);
         newsRecyclerView.setLayoutManager(newsLayoutManager);
-        newsDataAdapter = new NewsDataAdapter(this, newsDataList);
-        newsRecyclerView.setAdapter(newsDataAdapter);
+        newsAdapter = new NewsAdapter(this, newsList);
+        newsRecyclerView.setAdapter(newsAdapter);
         newsRecyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
 
         emptyStateTextView = (TextView) findViewById(R.id.empty_text_view);
@@ -67,9 +67,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             LoaderManager loaderManager = getLoaderManager();
             // Starting Loader thread for network and parsing
             loaderManager.initLoader(NEWS_LOADER_ID, null, this);
-        } else {
-            progressBar.setVisibility(View.GONE);
-            emptyStateTextView.setText(R.string.internet_connection_error);
         }
     }
 
@@ -79,8 +76,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 
-        // Checking the presence of the Internet connection and handling cases
-        return networkInfo != null && networkInfo.isConnectedOrConnecting();
+        if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
+            return true;
+        } else {
+            progressBar.setVisibility(View.GONE);
+            swipeRefreshLayout.setRefreshing(false);
+            emptyStateTextView.setText(R.string.internet_connection_error);
+            return false;
+        }
     }
 
     @Override
@@ -113,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @Override
-    public Loader<List<NewsData>> onCreateLoader(int id, Bundle args) {
+    public Loader<List<News>> onCreateLoader(int id, Bundle args) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         // extracting user preferences and store them in local variables
@@ -145,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @Override
-    public void onLoadFinished(Loader<List<NewsData>> loader, List<NewsData> updatedNewsList) {
+    public void onLoadFinished(Loader<List<News>> loader, List<News> updatedNewsList) {
         progressBar.setVisibility(View.GONE);
         swipeRefreshLayout.setRefreshing(false);
 
@@ -155,9 +158,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 emptyStateTextView.setText("");
             }
             // releasing references to old data list
-            newsDataAdapter.setNewsDataList(null);
-            newsDataAdapter.setNewsDataList(updatedNewsList);
-            newsDataAdapter.notifyDataSetChanged();
+            newsAdapter.setNewsList(null);
+            newsAdapter.setNewsList(updatedNewsList);
+            newsAdapter.notifyDataSetChanged();
             newsRecyclerView.setVisibility(View.VISIBLE);
         } else {
             newsRecyclerView.setVisibility(View.GONE);
@@ -166,8 +169,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @Override
-    public void onLoaderReset(Loader<List<NewsData>> loader) {
-        newsDataAdapter.setNewsDataList(null);
+    public void onLoaderReset(Loader<List<News>> loader) {
+        newsAdapter.setNewsList(null);
     }
 
     // This method is called back when user wants to refresh list via swiping the RecyclerView down
@@ -178,14 +181,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     // logic for restarting the loader
-    public void restartLoader() {
+    private void restartLoader() {
         if (hasConnection()) {
             getLoaderManager().restartLoader(NEWS_LOADER_ID, null, this);
         } else {
-            progressBar.setVisibility(View.GONE);
-            swipeRefreshLayout.setRefreshing(false);
-            newsDataAdapter.clear();
-            emptyStateTextView.setText(R.string.internet_connection_error);
+            newsAdapter.clear();
         }
     }
 

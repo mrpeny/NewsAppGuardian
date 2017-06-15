@@ -4,13 +4,13 @@ package com.example.mrpeny.mrpenynewsapp;
  * Class representing the News queried through Guardian search API
  */
 
-class NewsData {
-    private String sectionName;
-    private String webPublicationDate;
-    private String webTitle;
-    private String webUrl;
+class News {
+    private final String sectionName;
+    private final String webPublicationDate;
+    private final String webTitle;
+    private final String webUrl;
 
-    NewsData(String sectionName, String webPublicationDate, String webTitle, String webUrl) {
+    News(String sectionName, String webPublicationDate, String webTitle, String webUrl) {
         this.sectionName = sectionName;
         this.webPublicationDate = webPublicationDate;
         this.webTitle = webTitle;

@@ -20,13 +20,13 @@ import java.util.Locale;
  * Adapter for binding News date to Recycler view item views
  */
 
-class NewsDataAdapter extends RecyclerView.Adapter<NewsDataAdapter.ViewHolder> {
-    private List<NewsData> newsDataList;
+class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
+    private List<News> newsList;
     private Context context;
 
-    NewsDataAdapter(Context context, List<NewsData> newsDataList) {
+    NewsAdapter(Context context, List<News> newsList) {
         this.context = context;
-        this.newsDataList = newsDataList;
+        this.newsList = newsList;
     }
 
     @Override
@@ -34,15 +34,15 @@ class NewsDataAdapter extends RecyclerView.Adapter<NewsDataAdapter.ViewHolder> {
         View newsListItemView =
                 LayoutInflater.from(context).inflate(R.layout.news_list_item, parent, false);
 
-        final NewsDataAdapter.ViewHolder newsDataViewHolder =
-                new NewsDataAdapter.ViewHolder(newsListItemView);
+        final NewsAdapter.ViewHolder newsDataViewHolder =
+                new NewsAdapter.ViewHolder(newsListItemView);
 
         // setting onClickListener on the list items that opens the corresponding article online
         newsListItemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // getting the URL of the news at adapters current position
-                String webUrl = newsDataList.get(newsDataViewHolder.getAdapterPosition()).getWebUrl();
+                String webUrl = newsList.get(newsDataViewHolder.getAdapterPosition()).getWebUrl();
                 Uri webUri = Uri.parse(webUrl);
                 Intent intent = new Intent(Intent.ACTION_VIEW, webUri);
                 if (intent.resolveActivity(context.getPackageManager()) != null) {
@@ -56,14 +56,14 @@ class NewsDataAdapter extends RecyclerView.Adapter<NewsDataAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
-        if (newsDataList == null) {
+        if (newsList == null) {
             return;
         }
-        // retrieve the current NewsData object
-        NewsData newsData = newsDataList.get(position);
+        // retrieve the current News object
+        News news = newsList.get(position);
 
-        viewHolder.sectionNameTextView.setText(newsData.getSectionName());
-        viewHolder.webTitleTextView.setText(newsData.getWebTitle());
+        viewHolder.sectionNameTextView.setText(news.getSectionName());
+        viewHolder.webTitleTextView.setText(news.getWebTitle());
 
         // creating a simple date format that matches the pattern that Guardian API returns
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
@@ -71,9 +71,9 @@ class NewsDataAdapter extends RecyclerView.Adapter<NewsDataAdapter.ViewHolder> {
         Date date = null;
         try {
             // parse returned date string from Guardian API to a Date object
-            date = simpleDateFormat.parse(newsData.getWebPublicationDate());
+            date = simpleDateFormat.parse(news.getWebPublicationDate());
         } catch (ParseException e) {
-            Log.e("NewsDataAdapter", e.getMessage());
+            Log.e("NewsAdapter", e.getMessage());
         }
 
         // create a pattern that matches the way Hungarian users read date and time
@@ -84,18 +84,17 @@ class NewsDataAdapter extends RecyclerView.Adapter<NewsDataAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return newsDataList.size();
+        return newsList.size();
     }
 
-    void setNewsDataList(List<NewsData> newsDataList) {
-        this.newsDataList = newsDataList;
+    void setNewsList(List<News> newsList) {
+        this.newsList = newsList;
     }
 
     void clear() {
-        int size = this.newsDataList.size();
-        if (size > 0) {
-            newsDataList.clear();
-
+        if (!newsList.isEmpty()) {
+            int size = newsList.size();
+            newsList.clear();
             this.notifyItemRangeRemoved(0, size);
         }
     }

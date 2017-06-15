@@ -50,18 +50,18 @@ class QueryUtils {
     }
 
     /**
-     * Parses the given JSON string into a List of NewsData objects
+     * Parses the given JSON string into a List of News objects
      *
      * @param newsJson the JSON string to parse
-     * @return a list of NewsData objects
+     * @return a list of News objects
      */
-    static List<NewsData> parseNews(String newsJson) {
+    static List<News> parseNews(String newsJson) {
         // if the JSON String is empty or null, then return early
         if (TextUtils.isEmpty(newsJson)) {
             return null;
         }
 
-        List<NewsData> newsDataList = new ArrayList<>();
+        List<News> newsList = new ArrayList<>();
 
         try {
             JSONObject rootJson = new JSONObject(newsJson);
@@ -75,14 +75,14 @@ class QueryUtils {
                 String webTitle = newsData.getString("webTitle");
                 String webUrl = newsData.getString("webUrl");
 
-                newsDataList.add(new NewsData(sectionName, webPublicationDate, webTitle, webUrl));
+                newsList.add(new News(sectionName, webPublicationDate, webTitle, webUrl));
             }
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Error parsing JSON: " + e.getMessage());
         }
 
-        return newsDataList;
+        return newsList;
     }
 
     // helper method that converts an inputStream to String object with the help of BufferedReader
